@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Dubai Apps Monitoring</title> 
+</svelte:head>
+
 <div class="jumbotron jumbotron-fluid text-white text-center py-5 mb-5 rounded-3" style="background: #77D1F5;">
     <div class="container">
         <h2 class="display-4 fw-bold mb-3">Selamat Datang di Dubai Apps Monitoring</h2>

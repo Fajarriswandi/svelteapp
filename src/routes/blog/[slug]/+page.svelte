@@ -3,6 +3,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+    <title>{data.title || "Blog"}</title> 
+</svelte:head>
+
 <div class="container py-5">
 	<nav aria-label="breadcrumb" class="mb-4">
 		<ol class="breadcrumb">

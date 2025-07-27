@@ -68,12 +68,12 @@ const generateEvaluationDetails = (evaluationId) => {
 };
 
 const seedData = async () => {
-    console.log('----------------------------------------------------');
-    console.log('Memulai proses seeding data evaluations dan details...');
-    console.log('----------------------------------------------------');
+    // console.log('----------------------------------------------------');
+    // console.log('Memulai proses seeding data evaluations dan details...');
+    // console.log('----------------------------------------------------');
 
     // Hapus data lama dari evaluation_details terlebih dahulu (karena ada FK)
-    console.log('Menghapus data evaluation_details yang ada...');
+    // console.log('Menghapus data evaluation_details yang ada...');
     const { error: deleteDetailsError } = await supabase
         .from('evaluation_details')
         .delete()
@@ -83,11 +83,11 @@ const seedData = async () => {
         console.error('❌ Gagal menghapus data evaluation_details lama:', deleteDetailsError.message);
         process.exit(1);
     }
-    console.log('✅ Data evaluation_details lama berhasil dihapus.');
+    // console.log('✅ Data evaluation_details lama berhasil dihapus.');
 
 
     // Hapus data lama dari evaluations
-    console.log('Menghapus data evaluations yang ada...');
+    // console.log('Menghapus data evaluations yang ada...');
     const { error: deleteEvaluationsError } = await supabase
         .from('evaluations')
         .delete()
@@ -97,12 +97,12 @@ const seedData = async () => {
         console.error('❌ Gagal menghapus data evaluations lama:', deleteEvaluationsError.message);
         process.exit(1);
     }
-    console.log('✅ Data evaluations lama berhasil dihapus.');
+    // console.log('✅ Data evaluations lama berhasil dihapus.');
 
 
     // Sisipkan data evaluations
     const evaluationsToInsert = Array.from({ length: 20 }, (_, i) => generateRandomData(i));
-    console.log(`Menyisipkan ${evaluationsToInsert.length} data evaluations baru...`);
+    // console.log(`Menyisipkan ${evaluationsToInsert.length} data evaluations baru...`);
     const { data: insertedEvaluations, error: insertEvaluationsError } = await supabase
         .from('evaluations')
         .insert(evaluationsToInsert)
@@ -112,7 +112,7 @@ const seedData = async () => {
         console.error('❌ Gagal menyisipkan data evaluations:', insertEvaluationsError.message);
         process.exit(1);
     }
-    console.log('✅ Data evaluations berhasil disisipkan.');
+    // console.log('✅ Data evaluations berhasil disisipkan.');
 
     // Sisipkan data evaluation_details untuk setiap evaluasi yang baru disisipkan
     const allDetailsToInsert = [];
@@ -124,7 +124,7 @@ const seedData = async () => {
     }
 
     if (allDetailsToInsert.length > 0) {
-        console.log(`Menyisipkan ${allDetailsToInsert.length} data evaluation_details baru...`);
+        // console.log(`Menyisipkan ${allDetailsToInsert.length} data evaluation_details baru...`);
         const { error: insertDetailsError } = await supabase
             .from('evaluation_details')
             .insert(allDetailsToInsert);
@@ -133,14 +133,14 @@ const seedData = async () => {
             console.error('❌ Gagal menyisipkan data evaluation_details:', insertDetailsError.message);
             process.exit(1);
         }
-        console.log('✅ Data evaluation_details berhasil disisipkan.');
+        // console.log('✅ Data evaluation_details berhasil disisipkan.');
     } else {
-        console.log('Tidak ada data evaluation_details untuk disisipkan.');
+        // console.log('Tidak ada data evaluation_details untuk disisipkan.');
     }
 
-    console.log('----------------------------------------------------');
-    console.log('Proses seeding selesai.');
-    console.log('----------------------------------------------------');
+    // console.log('----------------------------------------------------');
+    // console.log('Proses seeding selesai.');
+    // console.log('----------------------------------------------------');
     process.exit(0);
 };
 

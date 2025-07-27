@@ -23,7 +23,7 @@
     $: initials = getInitials(profile?.full_name || profile?.username);
 </script>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbarContainer">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
             <img src="/logodubai.png" alt="Digital Dubai Logo" style="height: 40px; width: auto;" class="d-inline-block align-text-top">

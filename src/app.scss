@@ -1,0 +1,75 @@
+@import 'flatpickr/dist/flatpickr.min.css';
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css'; 
+
+
+$primary-color:#3DAEFF;
+$secondary-color:#0071EE;
+$green-default:#00DD7A;
+$yellow-default:#FFD739;
+$pink-default:#FFADA5;
+$purple-default:#9B7EF3;
+
+$text-default:#313F4E;
+$border-default:#E5EAEF;
+
+$gray-700: #495057; // Contoh warna abu-abu gelap
+$red-500: #dc3545; // Contoh warna merah
+$blue-600: #0d6efd; // Warna biru primary Bootstrap
+$gray-500: #6c757d; // Warna abu-abu muted Bootstrap
+$yellow-400: #ffc107; // Warna kuning warning Bootstrap
+$gray-100: #f8f9fa; // Warna abu-abu terang Bootstrap
+
+
+body{
+    color: $text-default !important;
+}
+
+.navbarContainer{
+    border-bottom: 1px solid $border-default;
+    padding: 5px 20px !important;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-content {
+    h1, h2, h3 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+    }
+
+    p {
+        margin-bottom: 1em;
+        line-height: 1.6;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        display: block; 
+        margin: 1em auto; 
+        border-radius: 0.25rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    pre {
+        background-color: $gray-100; 
+        border: 1px solid #dee2e6;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        overflow-x: auto;
+    }
+
+    blockquote {
+        border-left: 0.25rem solid $blue-600; 
+        padding-left: 1rem;
+        margin-left: 0;
+        font-style: italic;
+        color: $gray-500; 
+    }
+}

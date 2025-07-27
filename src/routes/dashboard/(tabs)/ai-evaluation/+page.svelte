@@ -156,17 +156,11 @@
     $: selectedRowsCount = 0;
 </script>
 
+<svelte:head>
+    <title>{data.title || "Dashboard"}</title>
+</svelte:head>
+
 <div class="container py-4">
-    <div class="mb-4">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <button class="nav-link active" type="button" aria-current="page">Tabel Evaluasi AI</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link text-muted" type="button">Analitik</button>
-            </li>
-        </ul>
-    </div>
 
     <main class="card shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
@@ -179,7 +173,7 @@
                     </span>
                 </div>
                 <button class="btn btn-outline-secondary" on:click={resetDateRange} aria-label="Reset Filter Tanggal">
-                    <i class="bi bi-x-lg"></i>
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
         </div>

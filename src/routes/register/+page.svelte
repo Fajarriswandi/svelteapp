@@ -4,6 +4,10 @@
     import type { ActionData } from './$types';
     export let form: ActionData;
 </script>
+<svelte:head>
+    <title>Register - Dubai Apps Monitoring</title> 
+</svelte:head>
+
 
 <div class="d-flex justify-content-center align-items-center min-vh-100 py-5">
     <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">

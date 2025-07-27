@@ -13,5 +13,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 		throw error(404, 'Post not found');
 	}
 
-	return { post };
+	return {
+        post,        
+        title: post.title
+    };
 };

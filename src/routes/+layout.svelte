@@ -1,11 +1,12 @@
 <script lang="ts">
     import { invalidateAll } from '$app/navigation';
     import { onMount } from 'svelte';
+    import '../app.scss';
+    import 'bootstrap/dist/css/bootstrap.min.css';
     import type { LayoutData } from './$types'; // Gunakan LayoutData, bukan PageData untuk layout
     import Header from '$lib/components/Header.svelte';
     import { supabase } from '$lib/supabaseClient';
-    import '../app.css'; // Pastikan file ini kosong dari Tailwind CSS
-    import 'bootstrap/dist/css/bootstrap.min.css';
+    
 
     export let data: LayoutData; // Props 'data' yang berisi session dan profile
 
@@ -45,7 +46,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
 </svelte:head>
 
-<div class="d-flex flex-column min-vh-100 bg-light text-dark">
+<div class="d-flex flex-column min-vh-100 text-dark">
     <Header {session} {profile} /> 
 
     <main class="container py-4 flex-grow-1"> 
