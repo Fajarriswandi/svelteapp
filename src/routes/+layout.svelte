@@ -18,7 +18,7 @@
 
     // --- SANGAT PENTING: TAMBAHKAN KEMBALI CONSOLE.LOG INI ---
     // Output ini akan muncul di konsol browser Anda.
-    console.log("Data profil di +layout.svelte:", profile);
+    // console.log("Data profil di +layout.svelte:", profile);
     // --- SANGAT PENTING: TAMBAHKAN KEMBALI CONSOLE.LOG INI ---
 
     onMount(() => {

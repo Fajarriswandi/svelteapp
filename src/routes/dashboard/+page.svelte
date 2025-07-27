@@ -2,12 +2,75 @@
     import Swal from 'sweetalert2';
     import type { PageData } from './$types';
     import { goto } from '$app/navigation';
-    // Tidak perlu import `page` store lagi jika tidak diakses di reactive statement
-    // import { page } from '$app/stores';
+    import { page } from '$app/stores';
+    // Hapus `import { onMount, tick } from 'svelte';` (tidak lagi diperlukan)
 
     export let data: PageData;
 
-    // Fungsi untuk konfirmasi penghapusan (tetap ada)
+    let searchTerm: string = data.searchQuery || '';
+
+    // Deklarasi Reaktif untuk itemsPerPage
+    let itemsPerPage: number;
+    // Gunakan inisialisasi reaktif dari data
+    // ini akan memastikan itemsPerPage selalu sinkron dengan data.itemsPerPage dari server
+    $: itemsPerPage = Number(data.itemsPerPage || 10);
+
+    let totalItems: number = data.totalItems;
+
+    // Dummy data for date range
+    let dateRange: string = '31 Maret 2025 - 31 Maret 2025';
+    let selectedRowsCount: number = 0; // Untuk jumlah baris terpilih (dummy)
+
+    let debounceTimeout: NodeJS.Timeout;
+
+    // --- HAPUS REFERENSI ELEMEN SELECT (selectElement tidak lagi diperlukan) ---
+    // Hapus `let selectElement: HTMLSelectElement;`
+    // --------------------------------------------------------------------------
+
+    // --- HAPUS BLOK ONMOUNT INI (penyebab utama masalah di sini) ---
+    // onMount(async () => {
+    //     await tick();
+    //     if (selectElement) {
+    //         selectElement.value = itemsPerPage.toString();
+    //     }
+    // });
+    // ----------------------------------------------------------------
+
+    // --- HAPUS BLOK REAKTIF YANG MENYEBABKAN INFINITE LOOP INI ---
+    // $: {
+    //     tick().then(() => {
+    //         if (selectElement) {
+    //             selectElement.value = itemsPerPage.toString();
+    //         }
+    //     });
+    // }
+    // -----------------------------------------------------------
+
+    // Reaktivitas untuk Pencarian
+    function handleSearchInput() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            const params = new URLSearchParams($page.url.searchParams);
+            if (searchTerm) {
+                params.set('q', searchTerm);
+            } else {
+                params.delete('q');
+            }
+            params.set('page', '1');
+            goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
+        }, 300);
+    }
+
+    // Reaktivitas untuk "Tampilkan baris per halaman"
+    function handleItemsPerPageChange() {
+        // itemsPerPage akan secara otomatis diupdate oleh bind:value
+        const params = new URLSearchParams($page.url.searchParams);
+        params.set('limit', itemsPerPage.toString()); // Update parameter 'limit'
+        params.set('page', '1'); // Selalu reset ke halaman 1 saat limit berubah
+        goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
+    }
+
+    // Konfirmasi Hapus Postingan (tetap ada)
     async function confirmDelete(event: Event & { currentTarget: HTMLFormElement }) {
         event.preventDefault();
         const form = event.currentTarget;
@@ -26,56 +89,18 @@
         }
     }
 
-    // --- Perbaikan untuk Search ---
-    // Inisialisasi searchTerm dari URL yang dikirim oleh server
-    let searchTerm: string = data.searchQuery || '';
-    let dateRange: string = '31 Maret 2025 - 31 Maret 2025'; // Dummy date range
-    let selectedRowsCount: number = 0; // Untuk jumlah baris terpilih (dummy)
-
-    let debounceTimeout: NodeJS.Timeout;
-
-    // Fungsi yang akan dipanggil saat input berubah
-    function handleSearchInput(event: Event) {
-        const inputElement = event.target as HTMLInputElement;
-        searchTerm = inputElement.value; // Update nilai searchTerm
-
-        clearTimeout(debounceTimeout); // Hapus timeout sebelumnya
-
-        // Set timeout baru untuk memicu pencarian
-        debounceTimeout = setTimeout(() => {
-            // Pastikan ini hanya berjalan di browser (kondisi `typeof window !== 'undefined'`)
-            // Atau lebih baik, seperti di bawah, tidak perlu langsung akses $page di sini
-            // Cukup gunakan `goto` dengan parameter baru
-            const currentUrl = new URL(window.location.href);
-            const params = currentUrl.searchParams;
-
-            if (searchTerm) {
-                params.set('q', searchTerm);
-            } else {
-                params.delete('q');
-            }
-
-            // Gunakan goto untuk memperbarui URL tanpa reload penuh halaman
-            // Ini akan memicu ulang load function di page.server.ts
-            goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
-
-        }, 300); // Debounce 300ms
-    }
-    // --- Akhir Perbaikan untuk Search ---
-
-    $: { // Reaktif untuk jumlah baris terpilih (dummy)
-        selectedRowsCount = 0;
-    }
+    // Dummy counter for selected rows
+    $: selectedRowsCount = 0;
 </script>
 
 <div class="container py-4">
     <div class="mb-4">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Tabel Evaluasi AI</a>
+                <a class="nav-link active" aria-current="page" href="javascript:void(0)">Tabel Evaluasi AI</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-muted" href="#">Analitik</a>
+                <a class="nav-link text-muted" href="javascript:void(0)">Analitik</a>
             </li>
         </ul>
     </div>
@@ -156,23 +181,24 @@
             </table>
             {:else}
                 <div class="alert alert-info text-center m-4" role="alert">
-                    <h4 class="alert-heading">Belum Ada Data Evaluasi!</h4>
-                    <p class="mb-0">Tidak ada data evaluasi AI yang ditemukan.</p>
+                    <h4 class="alert-heading">Data Tidak Ditemukan</h4>
+                    <p class="mb-0">Tidak ada data evaluasi yang ditemukan.</p>
                 </div>
             {/if}
         </div>
 
         <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
             <div class="text-muted small mb-2 mb-md-0">
-                {selectedRowsCount} dari {data.evaluations ? data.evaluations.length : 0} baris terpilih.
+                {data.evaluations ? data.evaluations.length : 0} dari {data.totalItems} baris.
             </div>
             <div class="d-flex align-items-center">
                 <span class="text-muted small me-2">Tampilkan baris</span>
                 <div class="input-group" style="width: auto;">
-                    <select class="form-select">
-                        <option>10</option>
-                        <option>20</option>
-                        <option>50</option>
+                    <select class="form-select" bind:value={itemsPerPage} on:change={handleItemsPerPageChange}>
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={0}>Semua</option>
                     </select>
                 </div>
             </div>

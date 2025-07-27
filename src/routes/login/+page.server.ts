@@ -19,7 +19,7 @@ export const actions: Actions = {
 		});
 
 		// TAMBAHKAN BARIS INI UNTUK DEBUG
-		console.log('--- HASIL LOGIN ACTION ---', { data: data.session, error });
+		// console.log('--- HASIL LOGIN ACTION ---', { data: data.session, error });
 
 		if (error) {
 			return fail(error.status ?? 500, { error: error.message });
