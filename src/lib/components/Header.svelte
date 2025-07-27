@@ -1,25 +1,76 @@
 <script lang="ts">
-	import type { Session } from '@supabase/supabase-js';
+    import { enhance } from '$app/forms';
+    import type { Session } from '@supabase/supabase-js';
 
-	export let session: Session | null;
+    // Definisikan tipe untuk properti yang diterima
+    export let session: Session | null;
+    export let profile: {
+        username?: string;
+        full_name?: string;
+        avatar_url?: string;
+    } | null;
+
+    // Fungsi helper untuk mendapatkan inisial
+    function getInitials(fullName: string | undefined | null): string {
+        if (!fullName) return 'U'; // 'U' for Unknown
+        const parts = fullName.split(' ').filter(Boolean); // Filter out empty strings
+        if (parts.length === 0) return 'U';
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Variabel reaktif untuk inisial
+    $: initials = getInitials(profile?.full_name || profile?.username);
 </script>
 
-<header class="border-b p-4">
-	<div class="container mx-auto flex items-center justify-between">
-		<a href="/" class="text-2xl font-bold text-gray-800 hover:text-blue-600">
-			Supa<span class="text-blue-500">Blog</span>
-		</a>
-		<nav class="flex items-center space-x-4">
-			{#if session}
-				<a href="/dashboard" class="hover:text-blue-500">Dashboard</a>
-				<a href="/dashboard/profile" class="hover:text-blue-500">Edit Profile</a>
-				<form action="/logout" method="POST">
-					<button type="submit" class="hover:text-blue-500">Logout</button>
-				</form>
-			{:else}
-				<a href="/login" class="hover:text-blue-500">Login</a>
-				<a href="/register" class="hover:text-blue-500">Register</a>
-			{/if}
-		</nav>
-	</div>
-</header>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="/logodubai.png" alt="Digital Dubai Logo" style="height: 40px; width: auto;" class="d-inline-block align-text-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {#if session}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    {/if}
+            </ul>
+            <ul class="navbar-nav">
+                {#if session}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {#if profile?.avatar_url}
+                                <img src={profile.avatar_url} alt="Avatar" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            {:else}
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-2" style="width: 40px; height: 40px;">
+                                    {initials}
+                                </div>
+                            {/if}
+                            <span class="d-none d-lg-block">{profile?.username || profile?.full_name || 'Pengguna'}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="/dashboard/profile">Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="/logout" use:enhance>
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {:else}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="/register">Register</a>
+                    </li>
+                {/if}
+            </ul>
+        </div>
+    </div>
+</nav>
