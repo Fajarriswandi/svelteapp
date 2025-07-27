@@ -2,38 +2,31 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ url, locals: { supabase } }) => { // Hapus getSession dari destructuring locals
-    // --- Pola baru: Dapatkan user dan session langsung dari supabase.auth ---
-    const { data: { user } } = await supabase.auth.getUser(); // Dapatkan user yang terverifikasi
-    const { data: { session } } = await supabase.auth.getSession(); // Dapatkan session lengkap
+export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // Redirect jika tidak ada user TERVERIFIKASI, meskipun ada session
-    if (!user) { // Hanya user yang terverifikasi yang boleh akses dashboard
+    let session = null;
+    if (user) {
+        const { data: { session: fullSession } } = await supabase.auth.getSession();
+        session = fullSession;
+    }
+
+    if (!user) {
         throw redirect(303, '/login');
     }
-    // Jika user ada tapi session null (kasus sangat jarang tapi mungkin, atau jika mau lebih ketat)
-    // if (!session) {
-    //     throw redirect(303, '/login');
-    // }
 
-
-    // Ambil query pencarian dan paginasi dari URL
     const searchQuery = url.searchParams.get('q');
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '10');
 
-    // Parameter Tanggal dari URL
     const startDateParam = url.searchParams.get('start_date');
     const endDateParam = url.searchParams.get('end_date');
 
-    // DEBUGGING TANGGAL
-    // console.log("DEBUG Server: Received start_date:", startDateParam);
-    // console.log("DEBUG Server: Received end_date:", endDateParam);
+    console.log("DEBUG Server: Received start_date:", startDateParam);
+    console.log("DEBUG Server: Received end_date:", endDateParam);
 
-    // Hitung offset
     const offset = (page - 1) * limit;
 
-    // --- Ambil data Postingan Blog ---
     const { data: posts, error: postsError } = await supabase
         .from('posts')
         .select(`
@@ -47,25 +40,29 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => { /
                 username
             )
         `)
-        .eq('user_id', user.id) // Filter berdasarkan user.id yang sudah diverifikasi
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
     if (postsError) {
         console.error('Error fetching posts:', postsError.message);
     }
 
-    // --- Ambil data Evaluasi AI dari tabel 'evaluations' ---
+    // --- PERBAIKAN DI SINI: Hapus Komentar dari Parameter Select ---
     let evaluationsQuery = supabase
         .from('evaluations')
-        .select('*', { count: 'exact' })
+        .select(`
+            *,
+            evaluation_details (
+                *
+            )
+        `, { count: 'exact' })
         .order('evaluation_date', { ascending: false });
+    // ---------------------------------------------------------------
 
-    // Terapkan filter pencarian jika ada searchQuery
     if (searchQuery) {
         evaluationsQuery = evaluationsQuery.ilike('caller_name', `%${searchQuery}%`);
     }
 
-    // Terapkan filter tanggal jika ada parameter tanggal
     if (startDateParam) {
         evaluationsQuery = evaluationsQuery.gte('evaluation_date', startDateParam);
     }
@@ -73,7 +70,6 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => { /
         evaluationsQuery = evaluationsQuery.lte('evaluation_date', endDateParam);
     }
 
-    // Terapkan limit dan offset untuk paginasi
     if (limit !== 0) {
         evaluationsQuery = evaluationsQuery.range(offset, offset + limit - 1);
     }
@@ -84,37 +80,30 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => { /
         console.error('Error fetching evaluations:', evaluationsError.message);
     }
 
-    // DEBUGGING TANGGAL
-    // console.log("DEBUG Server: Filtered Evaluations data:", evaluations);
-    // console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
+    console.log("DEBUG Server: Filtered Evaluations data (with details):", evaluations);
+    console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
 
     return {
-        session, // Tetap kembalikan session ke klien
+        session,
         posts: posts ?? [],
         evaluations: evaluations ?? [],
         searchQuery: searchQuery ?? '',
         currentPage: page,
         itemsPerPage: limit,
         totalItems: totalCount ?? 0,
-        startDate: startDateParam ?? null, // Kirim kembali start_date ke klien
-        endDate: endDateParam ?? null     // Kirim kembali end_date ke klien
+        startDate: startDateParam ?? null,
+        endDate: endDateParam ?? null
     };
 };
 
-// Actions untuk menghapus postingan
 export const actions: Actions = {
-    deletePost: async ({ request, locals: { supabase } }) => { // Hapus getSession dari destructuring locals
-        // --- Pola baru: Dapatkan user dan session langsung dari supabase.auth ---
+    deletePost: async ({ request, locals: { supabase } }) => {
         const { data: { user } } = await supabase.auth.getUser();
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (!user) { // Hanya user yang terverifikasi yang boleh melakukan aksi ini
+        if (!user) {
             throw redirect(303, '/login');
         }
-        // Jika Anda memerlukan session lengkap untuk aksi ini, pastikan session juga ada
-        // if (!session) {
-        //     throw redirect(303, '/login');
-        // }
 
         const formData = await request.formData();
         const postId = formData.get('id');
@@ -127,7 +116,7 @@ export const actions: Actions = {
             .from('posts')
             .delete()
             .eq('id', postId)
-            .eq('user_id', user.id); // Filter berdasarkan user.id yang sudah diverifikasi
+            .eq('user_id', user.id);
 
         if (error) {
             console.error('Error deleting post:', error.message);
