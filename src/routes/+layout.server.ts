@@ -1,30 +1,35 @@
 // src/routes/+layout.server.ts
 import type { LayoutServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit'; // Tambahkan impor redirect jika belum ada
 
-// load function ini akan dijalankan di server untuk setiap request ke layout ini
-// dan datanya akan tersedia di +layout.svelte
-export const load: LayoutServerLoad = async ({ locals: { supabase, getSession } }) => {
-    const session = await getSession();
+export const load: LayoutServerLoad = async ({ locals: { supabase } }) => { // Hapus getSession dari destructuring locals
+    // --- Pola baru: Dapatkan user dan session langsung dari supabase.auth ---
+    const { data: { user } } = await supabase.auth.getUser(); // Dapatkan user yang terverifikasi
+    const { data: { session } } = await supabase.auth.getSession(); // Dapatkan session lengkap
+
+    // Redirect jika tidak ada user TERVERIFIKASI, meskipun ada session
+    // (ini menangani kasus di mana session ada tapi tokennya tidak valid/expired)
+    if (!user) { 
+        throw redirect(303, '/login');
+    }
+
     let profile = null;
-
-    if (session) {
-        // Jika ada sesi, coba ambil data profil dari tabel 'profiles'
+    if (user) { // Pastikan user ada sebelum mengambil profilnya
         const { data, error } = await supabase
             .from('profiles')
-            .select(`id, username, full_name, avatar_url, website`) // Pilih kolom yang dibutuhkan
-            .eq('id', session.user.id) // Filter berdasarkan user ID yang login
-            .single(); // Ambil hanya satu baris
+            .select(`id, username, full_name, avatar_url, website`)
+            .eq('id', user.id)
+            .single();
 
         if (error) {
             console.error("Error fetching user profile:", error.message);
-            // Pertimbangkan untuk menangani error ini, misalnya tampilkan pesan ke user
         } else {
             profile = data;
         }
     }
 
     return {
-        session, // Sesi pengguna
+        session, // Objek session lengkap
         profile // Data profil pengguna
     };
 };

@@ -2,22 +2,38 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ url, locals: { supabase, getSession } }) => {
-    const session = await getSession();
+export const load: PageServerLoad = async ({ url, locals: { supabase } }) => { // Hapus getSession dari destructuring locals
+    // --- Pola baru: Dapatkan user dan session langsung dari supabase.auth ---
+    const { data: { user } } = await supabase.auth.getUser(); // Dapatkan user yang terverifikasi
+    const { data: { session } } = await supabase.auth.getSession(); // Dapatkan session lengkap
 
-    if (!session) {
+    // Redirect jika tidak ada user TERVERIFIKASI, meskipun ada session
+    if (!user) { // Hanya user yang terverifikasi yang boleh akses dashboard
         throw redirect(303, '/login');
     }
+    // Jika user ada tapi session null (kasus sangat jarang tapi mungkin, atau jika mau lebih ketat)
+    // if (!session) {
+    //     throw redirect(303, '/login');
+    // }
 
-    // --- Parameter Pencarian dan Paginasi dari URL ---
+
+    // Ambil query pencarian dan paginasi dari URL
     const searchQuery = url.searchParams.get('q');
-    const page = parseInt(url.searchParams.get('page') || '1'); // Default ke halaman 1
-    const limit = parseInt(url.searchParams.get('limit') || '10'); // Default ke 10 item per halaman
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '10');
+
+    // Parameter Tanggal dari URL
+    const startDateParam = url.searchParams.get('start_date');
+    const endDateParam = url.searchParams.get('end_date');
+
+    // DEBUGGING TANGGAL
+    // console.log("DEBUG Server: Received start_date:", startDateParam);
+    // console.log("DEBUG Server: Received end_date:", endDateParam);
 
     // Hitung offset
     const offset = (page - 1) * limit;
 
-    // --- Ambil data Postingan Blog (tetap dipertahankan) ---
+    // --- Ambil data Postingan Blog ---
     const { data: posts, error: postsError } = await supabase
         .from('posts')
         .select(`
@@ -31,7 +47,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, getSession
                 username
             )
         `)
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id) // Filter berdasarkan user.id yang sudah diverifikasi
         .order('created_at', { ascending: false });
 
     if (postsError) {
@@ -41,7 +57,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, getSession
     // --- Ambil data Evaluasi AI dari tabel 'evaluations' ---
     let evaluationsQuery = supabase
         .from('evaluations')
-        .select('*', { count: 'exact' }) // Tambahkan { count: 'exact' } untuk mendapatkan total baris
+        .select('*', { count: 'exact' })
         .order('evaluation_date', { ascending: false });
 
     // Terapkan filter pencarian jika ada searchQuery
@@ -49,12 +65,16 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, getSession
         evaluationsQuery = evaluationsQuery.ilike('caller_name', `%${searchQuery}%`);
     }
 
+    // Terapkan filter tanggal jika ada parameter tanggal
+    if (startDateParam) {
+        evaluationsQuery = evaluationsQuery.gte('evaluation_date', startDateParam);
+    }
+    if (endDateParam) {
+        evaluationsQuery = evaluationsQuery.lte('evaluation_date', endDateParam);
+    }
+
     // Terapkan limit dan offset untuk paginasi
-    // Jika limit adalah 'all' (atau angka yang sangat besar), Supabase akan mengembalikan semua.
-    // Kita gunakan .range(from, to) yang inklusif di kedua ujungnya
-    // Contoh: range(0, 9) untuk 10 item pertama
-    // Untuk 'all', kita tidak menerapkan limit/offset
-    if (limit !== 0) { // Jika limit 0, anggap sebagai 'all'
+    if (limit !== 0) {
         evaluationsQuery = evaluationsQuery.range(offset, offset + limit - 1);
     }
 
@@ -64,28 +84,37 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, getSession
         console.error('Error fetching evaluations:', evaluationsError.message);
     }
 
-    // --- CONSOLE.LOG UNTUK DEBUGGING (Opsional, bisa dihapus setelah yakin) ---
-    console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
-    // -------------------------------------------------------------------------
+    // DEBUGGING TANGGAL
+    // console.log("DEBUG Server: Filtered Evaluations data:", evaluations);
+    // console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
 
     return {
-        session,
+        session, // Tetap kembalikan session ke klien
         posts: posts ?? [],
         evaluations: evaluations ?? [],
         searchQuery: searchQuery ?? '',
-        currentPage: page, // Kirim kembali halaman saat ini
-        itemsPerPage: limit, // Kirim kembali item per halaman
-        totalItems: totalCount ?? 0 // Kirim kembali total item yang cocok
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems: totalCount ?? 0,
+        startDate: startDateParam ?? null, // Kirim kembali start_date ke klien
+        endDate: endDateParam ?? null     // Kirim kembali end_date ke klien
     };
 };
 
-// Actions untuk menghapus postingan (tetap dipertahankan)
+// Actions untuk menghapus postingan
 export const actions: Actions = {
-    deletePost: async ({ request, locals: { supabase, getSession } }) => {
-        const session = await getSession();
-        if (!session) {
+    deletePost: async ({ request, locals: { supabase } }) => { // Hapus getSession dari destructuring locals
+        // --- Pola baru: Dapatkan user dan session langsung dari supabase.auth ---
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!user) { // Hanya user yang terverifikasi yang boleh melakukan aksi ini
             throw redirect(303, '/login');
         }
+        // Jika Anda memerlukan session lengkap untuk aksi ini, pastikan session juga ada
+        // if (!session) {
+        //     throw redirect(303, '/login');
+        // }
 
         const formData = await request.formData();
         const postId = formData.get('id');
@@ -98,7 +127,7 @@ export const actions: Actions = {
             .from('posts')
             .delete()
             .eq('id', postId)
-            .eq('user_id', session.user.id);
+            .eq('user_id', user.id); // Filter berdasarkan user.id yang sudah diverifikasi
 
         if (error) {
             console.error('Error deleting post:', error.message);
