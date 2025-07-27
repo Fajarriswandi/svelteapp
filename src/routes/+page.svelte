@@ -1,43 +1,35 @@
-<script lang="ts">
-  import type { PageData } from './$types';
-  export let data: PageData;
-</script>
+<div class="jumbotron jumbotron-fluid text-white text-center py-5 mb-5 rounded-3" style="background: #77D1F5;">
+    <div class="container">
+        <h2 class="display-4 fw-bold mb-3">Selamat Datang di Dubai Apps Monitoring</h2>
+        <p class="lead mb-4">
+            Platform terdepan untuk memantau kinerja dan status aplikasi-aplikasi penting Dubai.
+            Dapatkan wawasan real-time dan pastikan stabilitas sistem Anda.
+        </p>
+        <a href="/dashboard" class="btn btn-outline-light btn-lg me-3">
+            <i class="bi bi-speedometer2 me-2"></i> Kunjungi Dashboard
+        </a>
+        <a href="https://www.digitaldubai.ae/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-info-circle me-2"></i> Pelajari Lebih Lanjut
+        </a>
+    </div>
+</div>
 
 <div class="container py-4">
-  <h2 class="text-center mb-5 fw-bold text-dark">Artikel Terbaru</h2>
+    <div class="row align-items-center mb-5">
+        
+        <div class="col-md-6 order-md-1">
+            <h2 class="h3 fw-bold mb-3">Monitoring yang Cerdas dan Efisien</h2>
+            <p class="text-muted">
+                Kami menyediakan antarmuka yang intuitif untuk melacak metrik penting, mendeteksi anomali, dan menerima notifikasi instan. Dengan teknologi terkini, Anda dapat menjaga aplikasi Anda berjalan dengan optimal.
+            </p>
+            <ul class="list-unstyled text-muted">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Pemantauan Real-time</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Analitik Komprehensif</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Notifikasi Kustomisasi</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Laporan Kinerja Terperinci</li>
+            </ul>
+        </div>
+    </div>
 
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      {#if data.posts && data.posts.length > 0}
-          {#each data.posts as post}
-              <div class="col">
-                  <a href="/blog/{post.slug}" class="card h-100 shadow-sm text-decoration-none">
-                      {#if post.cover_image_url}
-                          <img src={post.cover_image_url} class="card-img-top" alt="{post.title} cover" style="height: 200px; object-fit: cover;">
-                      {:else}
-                          <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                              <i class="bi bi-image-fill text-muted" style="font-size: 3rem;"></i>
-                          </div>
-                      {/if}
-                      <div class="card-body">
-                          <h5 class="card-title text-primary fw-bold">{post.title}</h5>
-                          <p class="card-text text-muted small mb-2">
-                              <i class="bi bi-calendar-check me-1"></i> Published: {new Date(post.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </p>
-                          <p class="card-text text-dark line-clamp-3">{post.content}</p>
-                      </div>
-                      <div class="card-footer bg-white border-top-0">
-                          <small class="text-primary fw-bold">Baca Selengkapnya <i class="bi bi-arrow-right"></i></small>
-                      </div>
-                  </a>
-              </div>
-          {/each}
-      {:else}
-          <div class="col-12">
-              <div class="alert alert-info text-center" role="alert">
-                  <h4 class="alert-heading">Belum Ada Postingan Tersedia</h4>
-                  <p class="mb-0">Mohon maaf, saat ini belum ada postingan yang bisa ditampilkan.</p>
-              </div>
-          </div>
-      {/if}
-  </div>
+  
 </div>
