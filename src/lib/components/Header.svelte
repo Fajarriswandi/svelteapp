@@ -24,7 +24,7 @@
 </script>
 
 <nav class="navbar navbar-expand-lg navbarContainer">
-    <div class="container-fluid">
+    <div class="container">
         <a class="navbar-brand" href="/">
             <img src="/logodubai.png" alt="Digital Dubai Logo" style="height: 40px; width: auto;" class="d-inline-block align-text-top">
         </a>

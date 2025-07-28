@@ -1,75 +1,164 @@
-@import 'flatpickr/dist/flatpickr.min.css';
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css'; 
+$primary: #3daeff;
+$secondary: #0071ee;
+$success: #00dd7a;
+$warning: #ffd739;
+$danger: #ffada5;
+$purple: #9b7ef3;
+$light: #f8f9fa;
+$dark: #343a40;
 
+$text-default: #313f4e;
+$border-default: #e5eaef;
 
-$primary-color:#3DAEFF;
-$secondary-color:#0071EE;
-$green-default:#00DD7A;
-$yellow-default:#FFD739;
-$pink-default:#FFADA5;
-$purple-default:#9B7EF3;
+$body-bg: orange;
 
-$text-default:#313F4E;
-$border-default:#E5EAEF;
+$font-size-base: 1rem;
+$font-weight-base: 400;
 
-$gray-700: #495057; // Contoh warna abu-abu gelap
-$red-500: #dc3545; // Contoh warna merah
-$blue-600: #0d6efd; // Warna biru primary Bootstrap
-$gray-500: #6c757d; // Warna abu-abu muted Bootstrap
-$yellow-400: #ffc107; // Warna kuning warning Bootstrap
-$gray-100: #f8f9fa; // Warna abu-abu terang Bootstrap
+// Variabel untuk link umum
+$link-color: $primary;
+$link-decoration: underline;
+$link-hover-color: $link-color;
+$link-hover-decoration: underline;
 
+// Variabel khusus untuk Button Link (.btn-link)
+$btn-link-color: $link-color;
+$btn-link-hover-color: $link-hover-color;
+$btn-link-active-color: $link-hover-color;
+$btn-link-disabled-color: rgba($link-color, 0.5); // Default opacity .5
 
-body{
-    color: $text-default !important;
+$btn-link-bg: transparent;
+$btn-link-border-color: transparent;
+$btn-link-hover-bg: transparent;
+$btn-link-hover-border-color: transparent;
+$btn-link-active-bg: transparent;
+$btn-link-active-border-color: transparent;
+$btn-link-disabled-bg: transparent;
+$btn-link-disabled-border-color: transparent;
+
+$btn-font-weight: $font-weight-base;
+
+$btn-focus-width: 0.25rem;
+$btn-focus-opacity: 0.25;
+$btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity);
+
+.text-dark {
+	color: $text-default !important;
 }
 
-.navbarContainer{
-    border-bottom: 1px solid $border-default;
-    padding: 5px 20px !important;
+.table {
+	tr {
+		th {
+			color: $text-default !important;
+			font-weight: 500;
+		}
+	}
+
+    tbody{
+        tr{
+            td{
+                color: $text-default !important;
+            }
+        }
+    }
+
+	.table-light {
+		tr {
+			th {
+				color: $text-default !important;
+				font-weight: 500;
+			}
+		}
+	}
+}
+
+@import 'flatpickr/dist/flatpickr.min.css';
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+body {
+	color: red !important;
+}
+
+.btn-link {
+	color: $primary !important;
+}
+
+.navtabsCostume {
+	border-bottom: 0px solid $border-default;
+	li {
+		a {
+			border-color: transparent !important;
+			color: $text-default;
+			position: relative;
+			&.active {
+				background: #ebf5ff !important;
+				border-radius: 15px;
+				color: $secondary !important;
+				border-bottom: 0px solid red !important;
+				&::after {
+					display: block;
+					width: 100%;
+					height: 4px;
+					content: '';
+					background: $secondary;
+					position: absolute;
+					bottom: -10px;
+					left: 0;
+					border-radius: 10px;
+				}
+			}
+		}
+	}
+}
+
+.navbarContainer {
+	border-bottom: 1px solid $border-default;
+	padding: 5px 20px !important;
 }
 
 .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .post-content {
-    h1, h2, h3 {
-        margin-top: 1.5em;
-        margin-bottom: 0.5em;
-    }
+	h1,
+	h2,
+	h3 {
+		margin-top: 1.5em;
+		margin-bottom: 0.5em;
+	}
 
-    p {
-        margin-bottom: 1em;
-        line-height: 1.6;
-    }
+	p {
+		margin-bottom: 1em;
+		line-height: 1.6;
+	}
 
-    img {
-        max-width: 100%;
-        height: auto;
-        display: block; 
-        margin: 1em auto; 
-        border-radius: 0.25rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
+	img {
+		max-width: 100%;
+		height: auto;
+		display: block;
+		margin: 1em auto;
+		border-radius: 0.25rem;
+		box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+	}
 
-    pre {
-        background-color: $gray-100; 
-        border: 1px solid #dee2e6;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        overflow-x: auto;
-    }
+	pre {
+		background-color: $text-default;
+		border: 1px solid #dee2e6;
+		padding: 1rem;
+		border-radius: 0.25rem;
+		overflow-x: auto;
+	}
 
-    blockquote {
-        border-left: 0.25rem solid $blue-600; 
-        padding-left: 1rem;
-        margin-left: 0;
-        font-style: italic;
-        color: $gray-500; 
-    }
+	blockquote {
+		border-left: 0.25rem solid $border-default;
+		padding-left: 1rem;
+		margin-left: 0;
+		font-style: italic;
+		color: $text-default;
+	}
 }

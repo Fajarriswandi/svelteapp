@@ -7,7 +7,7 @@
 
 <div class="container py-4">
     <div class="mb-4">
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs navtabsCostume">
             <li class="nav-item">
                 <a 
                     class="nav-link" 
