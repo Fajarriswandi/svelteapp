@@ -8,7 +8,7 @@ $light: #f8f9fa;
 $dark: #343a40;
 
 $text-default: #313f4e;
-$border-default: #e5eaef;
+$border-default: #c6cdd3;
 
 $body-bg: orange;
 
@@ -42,6 +42,10 @@ $btn-focus-width: 0.25rem;
 $btn-focus-opacity: 0.25;
 $btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity);
 
+:root{
+    --bs-table-striped-bg:orange;
+}
+
 .text-dark {
 	color: $text-default !important;
 }
@@ -56,6 +60,7 @@ $btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity)
 
     tbody{
         tr{
+            cursor: pointer;
             td{
                 color: $text-default !important;
             }
@@ -72,6 +77,8 @@ $btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity)
 	}
 }
 
+
+
 @import 'flatpickr/dist/flatpickr.min.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -83,6 +90,55 @@ body {
 .btn-link {
 	color: $primary !important;
 }
+
+.inputGroup_iconLeft{
+    span{
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        background: white;
+        color: $text-default;
+    }
+    input{
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        background: white;
+        color: $text-default;
+        padding-left: 0;
+        border-left: 1px solid white;
+        &::placeholder{
+            color: #b8a2a2;
+            font-size: 15px;
+        }
+    }
+}
+.inputGroup_iconRight{
+    span{
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        background: white;
+        color: $text-default;
+    }
+    input{
+        border-top-left-radius: 20px !important;
+        border-bottom-left-radius: 20px !important;
+        color: $text-default;
+        padding-left: 20px;
+        border-right: 1px solid white;
+        &::placeholder{
+            color: #b8a2a2;
+            font-size: 15px;
+        }
+    }
+}
+
+.btnCircle{
+    border-radius: 50px;
+    height: 37px;
+    width: 37px;
+    border-color: $border-default;
+}
+
+
 
 .navtabsCostume {
 	border-bottom: 0px solid $border-default;

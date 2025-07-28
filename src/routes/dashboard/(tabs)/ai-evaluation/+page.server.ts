@@ -1,10 +1,9 @@
-// src/routes/dashboard/+page.server.ts
+// src/routes/dashboard/(tabs)/ai-evaluation/+page.server.ts
 import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from '../../$types';
+import type { PageServerLoad, Actions } from './$types'; // Path relatif yang benar untuk $types
 
 export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
     const { data: { user } } = await supabase.auth.getUser();
-
     let session = null;
     if (user) {
         const { data: { session: fullSession } } = await supabase.auth.getSession();
@@ -22,8 +21,10 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
     const startDateParam = url.searchParams.get('start_date');
     const endDateParam = url.searchParams.get('end_date');
 
-    // console.log("DEBUG Server: Received start_date:", startDateParam);
-    // console.log("DEBUG Server: Received end_date:", endDateParam);
+    // --- DEBUGGING: Mengaktifkan kembali log untuk tanggal yang diterima ---
+    console.log("DEBUG Server: Received start_date:", startDateParam);
+    console.log("DEBUG Server: Received end_date:", endDateParam);
+    // ---------------------------------------------------------------------
 
     const offset = (page - 1) * limit;
 
@@ -52,9 +53,8 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
         .from('evaluations')
         .select(`
             *,
-            evaluation_details (
-                *
-            )
+            evaluation_details (*),
+            evaluation_history (*)
         `, { count: 'exact' })
         .order('evaluation_date', { ascending: false });
     // ---------------------------------------------------------------
@@ -80,8 +80,11 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
         console.error('Error fetching evaluations:', evaluationsError.message);
     }
 
-    // console.log("DEBUG Server: Filtered Evaluations data (with details):", evaluations);
-    // console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
+    // --- DEBUGGING UTAMA: Mengaktifkan kembali log untuk data lengkap dari server ---
+    console.log("DEBUG Server: Filtered Evaluations data (with details and history):", JSON.stringify(evaluations, null, 2));
+    // ---------------------------------------------------------------------------------
+
+    console.log(`Pencarian: "${searchQuery || ''}", Halaman: ${page}, Limit: ${limit}, Offset: ${offset}, Total: ${totalCount}`);
 
     return {
         session,

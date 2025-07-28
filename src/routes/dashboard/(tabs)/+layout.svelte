@@ -13,7 +13,7 @@
                     class="nav-link" 
                     class:active={currentPath === '/dashboard/ai-evaluation'} 
                     href="/dashboard/ai-evaluation">
-                    Tabel Evaluasi AI
+                    AI Evaluation Table
                 </a>
             </li>
             <li class="nav-item">
@@ -21,7 +21,7 @@
                     class="nav-link" 
                     class:active={currentPath === '/dashboard/analytics'} 
                     href="/dashboard/analytics">
-                    Analitik
+                    Analytics
                 </a>
             </li>
         </ul>
