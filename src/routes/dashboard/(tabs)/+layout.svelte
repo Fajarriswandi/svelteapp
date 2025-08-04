@@ -5,7 +5,7 @@
     $: currentPath = $page.url.pathname;
 </script>
 
-<div class="container py-4">
+<div class="container py-5 mt-4">
     <div class="mb-4">
         <ul class="nav nav-tabs navtabsCostume">
             <li class="nav-item">

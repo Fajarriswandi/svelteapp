@@ -2,7 +2,7 @@ $primary: #3daeff;
 $secondary: #0071ee;
 $success: #00dd7a;
 $warning: #ffd739;
-$danger: #ffada5;
+$danger: #f2857b;
 $purple: #9b7ef3;
 $light: #f8f9fa;
 $dark: #343a40;
@@ -58,6 +58,12 @@ $btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity)
 		}
 	}
 
+    thead{
+        tr{
+            border-top: 1px solid  #d9d9d9a0;
+        }
+    }
+
     tbody{
         tr{
             cursor: pointer;
@@ -78,13 +84,32 @@ $btn-focus-box-shadow: 0 0 0 $btn-focus-width rgba($primary, $btn-focus-opacity)
 }
 
 
+.card{
+    border-radius: 10px;
+    border-color: $border-default !important;
+    color: $text-default !important;
+    .card-header{
+        background: transparent;
+        small{
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .bigNumber{
+            display: block;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+    }
+}
+
 
 @import 'flatpickr/dist/flatpickr.min.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
 body {
-	color: red !important;
+	color: $text-default !important;
+
 }
 
 .btn-link {
@@ -136,6 +161,21 @@ body {
     height: 37px;
     width: 37px;
     border-color: $border-default;
+}
+
+.numberProgress{
+    font-size: 12px;
+    color: #aabbc5;
+    span{
+        &.positive{
+            font-weight: bold;
+            color: $success;
+        }
+        &.negative{
+            font-weight: bold;
+            color: $danger;
+        }
+    }
 }
 
 

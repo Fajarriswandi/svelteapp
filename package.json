@@ -38,6 +38,7 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
+		"@amcharts/amcharts5": "^5.13.4",
 		"@popperjs/core": "^2.11.8",
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.52.1",

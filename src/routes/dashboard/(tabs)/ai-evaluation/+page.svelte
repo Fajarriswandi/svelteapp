@@ -178,7 +178,6 @@
 </svelte:head>
 
 <!-- Konten di dalam main.card dari +layout.svelte -->
-<br>
 <h4 class="text-dark mb-4">AI Evaluation Table</h4>
 
 <div class="d-flex justify-content-between mb-4 align-middle">
@@ -224,17 +223,17 @@
 <div class="overflow-x-auto">
 	{#if data.evaluations && data.evaluations.length > 0}
 		<table class="table-hover mb-0 table align-middle">
-			<thead class="table-light">
+			<thead>
 				<tr>
-					<th scope="col" class="p-3">
+					<th scope="col" class="p-3 align-middle">
 						<input class="form-check-input" type="checkbox" value="" aria-label="Select all rows" />
 					</th>
-					<th scope="col" class="text-start">Penelpon</th>
-					<th scope="col" class="text-start">Kontak</th>
-					<th scope="col" class="text-start">Transkrip</th>
-					<th scope="col" class="text-start">Tanggal</th>
-					<th scope="col" class="text-start">Skor AI</th>
-					<th scope="col" class="text-start">Rating Manusia Rata-rata</th>
+					<th class="align-middle">Penelpon</th>
+					<th class="align-middle">Kontak</th>
+					<th class="align-middle">Transkrip</th>
+					<th class="align-middle">Tanggal</th>
+					<th class="align-middle">Skor AI</th>
+					<th class="align-middle">Rating Manusia Rata-rata</th>
 				</tr>
 			</thead>
 			<tbody>
