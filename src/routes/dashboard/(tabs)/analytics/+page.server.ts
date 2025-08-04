@@ -29,118 +29,59 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
     const endDateParam = url.searchParams.get('end_date') || defaultEndDate;
     // --- Akhir Logika Penentuan Rentang Tanggal ---
 
+    // --- Panggilan Fungsi RPC Paralel untuk Performa Optimal ---
+    // Daripada menunggu setiap panggilan RPC satu per satu (serial), kita menjalankannya
+    // secara bersamaan (paralel) dengan Promise.all(). Ini secara drastis mengurangi
+    // waktu muat halaman, dari total waktu semua panggilan menjadi waktu panggilan terlama.
+    const rpcPromises = [
+        supabase.rpc('get_total_calls_by_date_range', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_avg_time_to_response', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_avg_mean_time_to_resolution', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_call_success_rate', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_fallback_rate', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_csat_score', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_sentiment_score', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_top_5_topics', { start_date_param: startDateParam, end_date_param: endDateParam }),
+        supabase.rpc('get_daily_calls_chart_data', { start_date_param: startDateParam, end_date_param: endDateParam })
+    ];
 
-    // --- Panggilan Fungsi RPC untuk Setiap Metrik ---
+    // Menunggu semua promise selesai
+    const results = await Promise.all(rpcPromises);
 
-    // 1. Total Panggilan
-    const { data: totalCallsResult, error: totalCallsError } = await supabase.rpc('get_total_calls_by_date_range', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let totalCalls = 0;
-    if (totalCallsError) {
-        console.error('Error calling RPC get_total_calls_by_date_range:', totalCallsError.message);
-    } else if (totalCallsResult && totalCallsResult.length > 0) {
-        totalCalls = totalCallsResult[0].total_calls;
+    // Destrukturisasi hasil dengan penanganan error yang aman
+    const [
+        totalCallsResult,
+        avgResponseTimeResult,
+        avgResolutionTimeResult,
+        callSuccessRateResult,
+        fallbackRateResult,
+        csatScoreResult,
+        sentimentScoreResult,
+        topTopicsResult,
+        dailyCallsChartDataResult
+    ] = results;
+
+    // Fungsi helper untuk mengekstrak data atau mengembalikan nilai default jika ada error
+    const extractData = (result: { data: any, error: any }, key: string, defaultValue: any) => {
+        if (result.error) {
+            console.error(`Error calling RPC for ${key}:`, result.error.message);
+            return defaultValue;
+        }
+        if (Array.isArray(result.data) && result.data.length > 0) {
+            return result.data[0][key] ?? defaultValue;
+        }
+        return result.data ?? defaultValue;
     }
 
-    // 2. Rata-rata Waktu Respons
-    const { data: avgResponseTimeResult, error: avgResponseTimeError } = await supabase.rpc('get_avg_time_to_response', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let avgResponseTime = 0;
-    if (avgResponseTimeError) {
-        console.error('Error calling RPC get_avg_time_to_response:', avgResponseTimeError.message);
-    } else if (avgResponseTimeResult && avgResponseTimeResult.length > 0) {
-        avgResponseTime = avgResponseTimeResult[0].avg_time_seconds;
-    }
-
-    // 3. Rata-rata Waktu Resolusi
-    const { data: avgResolutionTimeResult, error: avgResolutionTimeError } = await supabase.rpc('get_avg_mean_time_to_resolution', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let avgResolutionTime = 0;
-    if (avgResolutionTimeError) {
-        console.error('Error calling RPC get_avg_mean_time_to_resolution:', avgResolutionTimeError.message);
-    } else if (avgResolutionTimeResult && avgResolutionTimeResult.length > 0) {
-        avgResolutionTime = avgResolutionTimeResult[0].avg_time_minutes;
-    }
-
-    // 4. Tingkat Keberhasilan Panggilan
-    const { data: callSuccessRateResult, error: callSuccessRateError } = await supabase.rpc('get_call_success_rate', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let callSuccessRate = 0;
-    if (callSuccessRateError) {
-        console.error('Error calling RPC get_call_success_rate:', callSuccessRateError.message);
-    } else if (callSuccessRateResult && callSuccessRateResult.length > 0) {
-        callSuccessRate = callSuccessRateResult[0].success_rate;
-    }
-
-    // 5. Tingkat Fallback
-    const { data: fallbackRateResult, error: fallbackRateError } = await supabase.rpc('get_fallback_rate', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let fallbackRate = 0;
-    if (fallbackRateError) {
-        console.error('Error calling RPC get_fallback_rate:', fallbackRateError.message);
-    } else if (fallbackRateResult && fallbackRateResult.length > 0) {
-        fallbackRate = fallbackRateResult[0].fallback_rate;
-    }
-
-    // 6. Skor CSAT
-    const { data: csatScoreResult, error: csatScoreError } = await supabase.rpc('get_csat_score', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let csatScore = 0;
-    if (csatScoreError) {
-        console.error('Error calling RPC get_csat_score:', csatScoreError.message);
-    } else if (csatScoreResult && csatScoreResult.length > 0) {
-        csatScore = csatScoreResult[0].csat_score;
-    }
-
-    // 7. Skor Sentimen
-    const { data: sentimentScoreResult, error: sentimentScoreError } = await supabase.rpc('get_sentiment_score', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let sentimentScore = 0;
-    if (sentimentScoreError) {
-        console.error('Error calling RPC get_sentiment_score:', sentimentScoreError.message);
-    } else if (sentimentScoreResult && sentimentScoreResult.length > 0) {
-        sentimentScore = sentimentScoreResult[0].sentiment_score;
-    }
-
-    // 8. Topik Teratas
-    const { data: topTopicsResult, error: topTopicsError } = await supabase.rpc('get_top_5_topics', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let topTopics = [];
-    if (topTopicsError) {
-        console.error('Error calling RPC get_top_5_topics:', topTopicsError.message);
-    } else if (topTopicsResult) {
-        topTopics = topTopicsResult;
-    }
-
-    // 9. Data Grafik Panggilan Harian
-    const { data: dailyCallsChartDataResult, error: dailyCallsChartDataError } = await supabase.rpc('get_daily_calls_chart_data', {
-        start_date_param: startDateParam,
-        end_date_param: endDateParam
-    });
-    let dailyCallsChartData = [];
-    if (dailyCallsChartDataError) {
-        console.error('Error calling RPC get_daily_calls_chart_data:', dailyCallsChartDataError.message);
-    } else if (dailyCallsChartDataResult) {
-        dailyCallsChartData = dailyCallsChartDataResult;
-    }
-    // --- Akhir Panggilan Fungsi RPC ---
-
+    const totalCalls = extractData(totalCallsResult, 'total_calls', 0);
+    const avgResponseTime = extractData(avgResponseTimeResult, 'avg_time_seconds', 0);
+    const avgResolutionTime = extractData(avgResolutionTimeResult, 'avg_time_minutes', 0);
+    const callSuccessRate = extractData(callSuccessRateResult, 'success_rate', 0);
+    const fallbackRate = extractData(fallbackRateResult, 'fallback_rate', 0);
+    const csatScore = extractData(csatScoreResult, 'csat_score', 0);
+    const sentimentScore = extractData(sentimentScoreResult, 'sentiment_score', 0);
+    const topTopics = topTopicsResult.error ? [] : topTopicsResult.data || [];
+    const dailyCallsChartData = dailyCallsChartDataResult.error ? [] : dailyCallsChartDataResult.data || [];
 
     // --- Debugging: Log semua data yang diambil ---
     console.log('DEBUG Server: Analytics Data Summary:', {
